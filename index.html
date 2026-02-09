@@ -6,20 +6,66 @@
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
   </head>
   <body>
-    <a-scene mindar-image="imageTargetSrc: https://cdn.jsdelivr.net/gh/hiukim/mind-ar-js@1.2.5/examples/image-tracking/assets/card-example/card.mind;" color-space="sRGB" renderer="colorManagement: true, physicallyCorrectLights" vr-mode-ui="enabled: false" device-orientation-permission-ui="enabled: false">
+    <a-scene mindar-image="imageTargetSrc: ./assets/targets.mind;" color-space="sRGB" renderer="colorManagement: true, physicallyCorrectLights" vr-mode-ui="enabled: false" device-orientation-permission-ui="enabled: false">
       <a-assets>
-	<img id="card" src="https://cdn.jsdelivr.net/gh/hiukim/mind-ar-js@1.2.5/examples/image-tracking/assets/card-example/card.png" />
-	<a-asset-item id="avatarModel" src="https://cdn.jsdelivr.net/gh/hiukim/mind-ar-js@1.2.5/examples/image-tracking/assets/card-example/softmind/scene.gltf"></a-asset-item>
+        <img id="card" src="./Assets/AR Card.png" />
       </a-assets>
 
       <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
 
       <a-entity mindar-image-target="targetIndex: 0">
-        <a-plane src="#card" position="0 0 0" height="0.552" width="1" rotation="0 0 0"></a-plane>
-        <a-gltf-model rotation="0 0 0 " position="0 0 0.1" scale="0.005 0.005 0.005" src="#avatarModel"
-          animation="property: position; to: 0 0.1 0.1; dur: 1000; easing: easeInOutQuad; loop: true; dir: alternate"
-        >
+        <!-- <a-plane src="#card" position="0 0 0" height="0.552" width="1" rotation="0 0 0" -->
+          animation="property: position; to: 0 0.1 0.1; dur: 1000; easing: easeInOutQuad; loop: true; dir: alternate">
+        </a-plane>
       </a-entity>
+      <!-- YouTube overlay player (hidden until AR target found) -->
+      <div id="yt-container" style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:640px;height:360px;display:none;z-index:9999;pointer-events:auto;">
+        <div id="player"></div>
+      </div>
+      <script>
+        // Load YouTube IFrame API asynchronously
+        const tag = document.createElement('script');
+        tag.src = "https://www.youtube.com/iframe_api";
+        document.head.appendChild(tag);
+
+        let player;
+        function onYouTubeIframeAPIReady() {
+          player = new YT.Player('player', {
+            height: '360',
+            width: '640',
+            videoId: '9rx8vqsxbWM',
+            playerVars: { 'playsinline': 1, 'rel': 0 },
+            events: {
+              'onReady': (e) => { /* ready */ },
+            }
+          });
+        }
+
+        const ytContainer = document.getElementById('yt-container');
+        const targetEntity = document.querySelector('[mindar-image-target]');
+
+        function showYT() {
+          if (player && player.playVideo) {
+            ytContainer.style.display = 'block';
+            player.playVideo();
+          } else {
+            ytContainer.style.display = 'block';
+          }
+        }
+        function hideYT() {
+          if (player && player.pauseVideo) player.pauseVideo();
+          ytContainer.style.display = 'none';
+        }
+
+        if (targetEntity) {
+          targetEntity.addEventListener('targetFound', () => {
+            showYT();
+          });
+          targetEntity.addEventListener('targetLost', () => {
+            hideYT();
+          });
+        }
+      </script>
     </a-scene>
   </body>
 </html>
